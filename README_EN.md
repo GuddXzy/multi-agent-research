@@ -176,7 +176,7 @@ multi-agent-research/
 │       ├── web_search.py
 │       ├── wikipedia.py
 │       └── text_tools.py
-└── tests/                  # 74 unit / integration tests
+└── tests/                  # 76 unit / integration tests
 ```
 
 ---

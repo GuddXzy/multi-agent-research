@@ -176,7 +176,7 @@ multi-agent-research/
 │       ├── web_search.py
 │       ├── wikipedia.py
 │       └── text_tools.py
-└── tests/                  # 74 个单元 / 集成测试
+└── tests/                  # 76 个单元 / 集成测试
 ```
 
 ---
