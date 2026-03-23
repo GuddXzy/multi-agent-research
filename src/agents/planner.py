@@ -69,8 +69,13 @@ def planner_node(state: AgentState) -> dict[str, Any]:
     print("\n[Planner] Decomposing query into sub-tasks...")
     llm = get_llm()
 
+    lang_instruction = (
+        "\n请用中文输出子任务描述。"
+        if state.get("language") == "zh"
+        else ""
+    )
     messages = [
-        {"role": "system", "content": _SYSTEM_PROMPT},
+        {"role": "system", "content": _SYSTEM_PROMPT + lang_instruction},
         {"role": "user", "content": f"Research question: {state['query']}"},
     ]
 

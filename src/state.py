@@ -39,3 +39,4 @@ class AgentState(TypedDict):
     error: Optional[str]
     human_approved: bool          # True once the user signs off on the plan
     human_feedback: Optional[str] # Non-None when the user requests a revision
+    language: str                 # Output language for LLM agents: "en" | "zh"

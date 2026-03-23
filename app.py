@@ -91,6 +91,7 @@ def _make_state() -> AgentState:
         "error":               None,
         "human_approved":      True,
         "human_feedback":      None,
+        "language":            st.session_state.lang,  # "zh" | "en"
     }
 
 
@@ -127,52 +128,51 @@ def _render_sidebar() -> None:
         st.divider()
 
         # ── History ───────────────────────────────────────────────────────────
-        st.title(_t("history_title"))
+        with st.expander(_t("history_title"), expanded=False):
+            mem = MemoryStore(MEMORY_DB_PATH)
+            stats = mem.get_stats()
+            st.caption(f"{_t('total_sessions')}: {stats['total']}")
 
-        mem = MemoryStore(MEMORY_DB_PATH)
-        stats = mem.get_stats()
-        st.caption(f"{_t('total_sessions')}: {stats['total']}")
+            search_kw = st.text_input(
+                _t("search_history_label"),
+                placeholder=_t("search_placeholder"),
+                key="hist_search",
+            )
 
-        search_kw = st.text_input(
-            _t("search_history_label"),
-            placeholder=_t("search_placeholder"),
-            key="hist_search",
-        )
+            sessions = (
+                mem.search_sessions(search_kw)
+                if search_kw.strip()
+                else mem.get_recent_sessions(limit=8)
+            )
 
-        sessions = (
-            mem.search_sessions(search_kw)
-            if search_kw.strip()
-            else mem.get_recent_sessions(limit=8)
-        )
-
-        if not sessions:
-            st.info(_t("no_sessions_found") if search_kw else _t("no_history"))
-        else:
-            for i, s in enumerate(sessions):
-                label = s["query"]
-                if len(label) > 52:
-                    label = label[:49] + "..."
-                with st.expander(label, expanded=False):
-                    ts = (s["created_at"] or "")[:19].replace("T", " ")
-                    st.caption(ts)
-                    plan_list = s["plan_json"] if isinstance(s["plan_json"], list) else []
-                    res_list = s["results_json"] if isinstance(s["results_json"], list) else []
-                    succeeded = sum(
-                        1 for r in res_list if r.get("status") == "success"
-                    )
-                    st.write(_t("session_tasks").format(
-                        n_plan=len(plan_list),
-                        n_ok=succeeded,
-                        n_res=len(res_list),
-                    ))
-                    if st.button(_t("load_report"), key=f"load_{s['id']}_{i}"):
-                        st.session_state.report = s["report"]
-                        st.session_state.plan = plan_list
-                        st.session_state.research_results = res_list
-                        st.session_state.query = s["query"]
-                        st.session_state.eval_scores = None
-                        st.session_state.stage = "done"
-                        st.rerun()
+            if not sessions:
+                st.info(_t("no_sessions_found") if search_kw else _t("no_history"))
+            else:
+                for i, s in enumerate(sessions):
+                    label = s["query"]
+                    if len(label) > 52:
+                        label = label[:49] + "..."
+                    with st.expander(label, expanded=False):
+                        ts = (s["created_at"] or "")[:19].replace("T", " ")
+                        st.caption(ts)
+                        plan_list = s["plan_json"] if isinstance(s["plan_json"], list) else []
+                        res_list = s["results_json"] if isinstance(s["results_json"], list) else []
+                        succeeded = sum(
+                            1 for r in res_list if r.get("status") == "success"
+                        )
+                        st.write(_t("session_tasks").format(
+                            n_plan=len(plan_list),
+                            n_ok=succeeded,
+                            n_res=len(res_list),
+                        ))
+                        if st.button(_t("load_report"), key=f"load_{s['id']}_{i}"):
+                            st.session_state.report = s["report"]
+                            st.session_state.plan = plan_list
+                            st.session_state.research_results = res_list
+                            st.session_state.query = s["query"]
+                            st.session_state.eval_scores = None
+                            st.session_state.stage = "done"
+                            st.rerun()
 
         st.divider()
         if st.button(_t("new_research"), use_container_width=True, type="primary"):

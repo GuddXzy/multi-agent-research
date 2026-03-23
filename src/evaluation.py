@@ -32,9 +32,10 @@ _TOOL_EVIDENCE = re.compile(
 # Markdown heading anywhere in the text
 _HEADING_RE = re.compile(r"^#{1,4}\s+\w", re.MULTILINE)
 
-# Any word that suggests a conclusion section
+# Any word that suggests a conclusion section (English and Chinese)
 _CONCLUSION_RE = re.compile(
-    r"\b(conclusion|summary|in summary|to summarize|in conclusion|overall)\b",
+    r"(\b(conclusion|summary|in summary|to summarize|in conclusion|overall)\b"
+    r"|结论|总结|综上|概括|小结)",
     re.IGNORECASE,
 )
 

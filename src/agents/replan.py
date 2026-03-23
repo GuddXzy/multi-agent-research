@@ -39,8 +39,13 @@ def replan_node(state: AgentState) -> dict[str, Any]:
         "Please produce a revised research plan as a JSON array."
     )
 
+    lang_instruction = (
+        "\n请用中文输出修改后的计划。"
+        if state.get("language") == "zh"
+        else ""
+    )
     messages = [
-        {"role": "system", "content": _SYSTEM_PROMPT},
+        {"role": "system", "content": _SYSTEM_PROMPT + lang_instruction},
         {"role": "user", "content": user_message},
     ]
 

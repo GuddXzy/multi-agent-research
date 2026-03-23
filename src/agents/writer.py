@@ -65,8 +65,13 @@ def writer_node(state: AgentState) -> dict[str, Any]:
         f"Research Findings:\n{findings_text}"
     )
 
+    lang_instruction = (
+        "\n请用中文撰写完整报告，包括标题、摘要、研究发现、结论等所有部分。"
+        if state.get("language") == "zh"
+        else ""
+    )
     messages = [
-        {"role": "system", "content": _SYSTEM_PROMPT},
+        {"role": "system", "content": _SYSTEM_PROMPT + lang_instruction},
         {"role": "user", "content": user_message},
     ]
 

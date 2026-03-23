@@ -50,6 +50,11 @@ except (ImportError, AttributeError):
 
 # ── Research pipeline ──────────────────────────────────────────────────────────
 
+def _detect_language(text: str) -> str:
+    """Return "zh" if *text* contains Chinese characters, else "en"."""
+    return "zh" if any("\u4e00" <= ch <= "\u9fff" for ch in text) else "en"
+
+
 def run(query: str) -> None:
     """Execute the research graph for the given query and save the session."""
     initial_state: AgentState = {
@@ -61,6 +66,7 @@ def run(query: str) -> None:
         "error": None,
         "human_approved": False,
         "human_feedback": None,
+        "language": _detect_language(query),
     }
 
     print_header("Multi-Agent Research Assistant")
