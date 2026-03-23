@@ -16,7 +16,9 @@
 
 ## Demo
 
-<!-- Screenshot: streamlit UI -->
+![首页](docs/demo_home.png)
+![审阅计划](docs/demo_plan.png)
+![研究完成](docs/demo_report.png)
 
 典型使用流程：
 

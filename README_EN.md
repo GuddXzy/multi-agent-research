@@ -16,7 +16,9 @@ Multiple AI agents collaborate to tackle research questions — automatically br
 
 ## Demo
 
-<!-- Screenshot: streamlit UI -->
+![Home](docs/demo_home.png)
+![Plan Review](docs/demo_plan.png)
+![Research Complete](docs/demo_report.png)
 
 Typical workflow in under 30 seconds:
 
