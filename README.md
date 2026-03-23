@@ -93,7 +93,7 @@
 | 数据持久化 | SQLite | 会话记忆存储 |
 | 前端 | Streamlit 1.35+ | Web 交互界面 |
 | 容器化 | Docker + Compose | 一键部署 |
-| 测试 | pytest | 74 个测试，全部通过 |
+| 测试 | pytest | 76 个测试，全部通过 |
 
 ---
 

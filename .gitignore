@@ -43,3 +43,6 @@ langchain_cache/
 # Runtime data (SQLite memory, saved notes)
 data/
 outputs/
+
+# Project context (local only)
+CLAUDE.md

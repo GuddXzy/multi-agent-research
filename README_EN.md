@@ -93,7 +93,7 @@ User Query
 | Persistence | SQLite | Session memory storage |
 | Frontend | Streamlit 1.35+ | Interactive web UI |
 | Containerisation | Docker + Compose | One-command deployment |
-| Testing | pytest | 74 tests, all passing |
+| Testing | pytest | 76 tests, all passing |
 
 ---
 
