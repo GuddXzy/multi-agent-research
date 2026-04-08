@@ -49,6 +49,8 @@ def _init_state() -> None:
         "report": "",
         "task_logs": {},        # {task_text: captured_stdout_str}
         "eval_scores": None,
+        "trend_diff": None,
+        "trend_past_date": "",
         "lang": "zh",           # "zh" | "en"
     }
     for k, v in defaults.items():
@@ -381,8 +383,23 @@ def _stage_writing() -> None:
         query=st.session_state.query,
     )
 
-    # Persist session to memory
+    # Trend comparison with past research
     mem = MemoryStore(MEMORY_DB_PATH)
+    past = mem.find_related_session(st.session_state.query)
+    if past and report.strip():
+        from datetime import datetime, timezone
+        diff = mem.compare_sessions(
+            old_report=past.get("report", ""),
+            new_report=report,
+            old_date=past["created_at"][:10],
+            new_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        )
+        st.session_state["trend_diff"] = diff
+        st.session_state["trend_past_date"] = past["created_at"][:10]
+    else:
+        st.session_state["trend_diff"] = None
+
+    # Persist session to memory
     mem.save_session(
         query=st.session_state.query,
         plan=st.session_state.plan,
@@ -421,6 +438,14 @@ def _stage_done() -> None:
                 snippet = snippet[:397] + "..."
             st.write(snippet)
             st.divider()
+
+    # ── Trend comparison ─────────────────────────────────────────────────────
+    trend_diff = st.session_state.get("trend_diff")
+    if trend_diff:
+        past_date = st.session_state.get("trend_past_date", "")
+        with st.expander(f"📊 趋势对比（vs {past_date}）", expanded=True):
+            st.markdown(trend_diff)
+        st.divider()
 
     # ── Full report ───────────────────────────────────────────────────────────
     st.subheader(_t("report_header"))

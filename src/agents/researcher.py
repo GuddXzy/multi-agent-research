@@ -1,7 +1,7 @@
 """Researcher Agent — ReAct-style tool-calling loop.
 
-Uses a manual Thought/Action/Observation cycle that works reliably with
-small local models (qwen2.5:7b) that may not support native function-calling.
+Uses a manual Thought/Action/Observation cycle for structured trade research.
+Searches in English for broader coverage, synthesizes findings in the user's language.
 """
 
 import re
@@ -21,43 +21,50 @@ _ACTION_INPUT_RE = re.compile(
 _FINAL_RE = re.compile(r"Final\s*Answer\s*:\s*([\s\S]+)", re.IGNORECASE)
 
 # ── ReAct system prompt ────────────────────────────────────────────────────────
-_REACT_SYSTEM = """You are a research assistant. Research the given task using the tools below.
+_REACT_SYSTEM = """You are a trade research analyst specializing in APEC economies and international trade.
+Research the given task using the tools below.
+
+IMPORTANT SEARCH STRATEGY:
+- Always search in ENGLISH for better coverage of international trade data.
+- Use specific trade-related keywords (tariff, import policy, market size, trade agreement, APEC).
+- Cross-reference web search (recent data) with Wikipedia (background context).
 
 AVAILABLE TOOLS:
-- web_search : Search the internet for recent news, trends, and current facts.
-- wiki_search : Search Wikipedia for factual background and overviews.
+- web_search : Search the internet for recent trade data, policies, news, and statistics.
+- wiki_search : Search Wikipedia for country/industry background and economic overviews.
 
 STRICT RESPONSE FORMAT — follow EXACTLY:
 
-Thought: <your reasoning about what to look up>
+Thought: <your reasoning about what to search and why>
 Action: <web_search or wiki_search>
-Action Input: <search query — plain text, no quotes>
+Action Input: <search query in English — plain text, no quotes>
 
 After you see the Observation, either call another tool OR give your final answer:
 
-Final Answer: <comprehensive research findings, 3-5 paragraphs>
+Final Answer: <comprehensive research findings with specific data points, 3-5 paragraphs>
 
 RULES:
 - Use at least one tool before giving Final Answer.
-- Final Answer must be self-contained and detailed.
+- Final Answer must include specific numbers, dates, or facts from the search results.
+- Cite sources where possible (e.g., "according to [source]").
 - Do NOT use any tool name other than web_search or wiki_search.
 
 EXAMPLE:
-Task: Research recent advances in quantum computing.
+Task: Research Vietnam consumer electronics import tariffs.
 
-Thought: I need background on quantum computing first.
-Action: wiki_search
-Action Input: quantum computing
-
-Observation: Quantum computing is a type of computation...
-
-Thought: Now let me look for the latest news.
+Thought: I need to search for Vietnam's current tariff rates on electronics.
 Action: web_search
-Action Input: quantum computing breakthroughs 2024
+Action Input: Vietnam import tariff consumer electronics 2025 2026
 
-Observation: IBM announced...
+Observation: Vietnam's MFN tariff rate for electronic products...
 
-Final Answer: Quantum computing has seen significant advances...
+Thought: Let me also check ASEAN/APEC trade agreements that may reduce tariffs.
+Action: web_search
+Action Input: Vietnam APEC trade agreement electronics tariff reduction
+
+Observation: Under the ASEAN-China FTA...
+
+Final Answer: Vietnam's import tariff structure for consumer electronics...
 """
 
 

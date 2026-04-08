@@ -11,7 +11,7 @@ TEXTS: dict[str, dict[str, str]] = {
         # ── Language selector ────────────────────────────────────────────────
         "lang_label": "语言 / Language",
         # ── Titles / stage headers ───────────────────────────────────────────
-        "title": "Multi-Agent 研究助手",
+        "title": "APEC 外贸商机研究助手",
         "planning_title": "规划中",
         "review_title": "审阅研究计划",
         "plan_header": "研究计划",
@@ -31,10 +31,10 @@ TEXTS: dict[str, dict[str, str]] = {
         "session_tasks": "任务：{n_plan}  |  研究：{n_ok}/{n_res} 完成",
         # ── Idle stage ───────────────────────────────────────────────────────
         "idle_description": (
-            "输入研究问题，助手将自动规划、调用搜索工具并生成结构化 Markdown 报告。"
+            "输入您的外贸调研需求（目标市场、行业、贸易政策等），助手将自动规划调研维度、多源采集信息并生成结构化市场简报。"
         ),
-        "research_question_label": "研究问题",
-        "input_placeholder": "输入你的研究问题...",
+        "research_question_label": "调研需求",
+        "input_placeholder": "例：我是深圳做消费电子出口的企业，想了解越南市场机会...",
         "start_btn": "开始研究",
         # ── Planning stage ───────────────────────────────────────────────────
         "query_label": "问题",
@@ -72,7 +72,7 @@ TEXTS: dict[str, dict[str, str]] = {
         # ── Language selector ────────────────────────────────────────────────
         "lang_label": "语言 / Language",
         # ── Titles / stage headers ───────────────────────────────────────────
-        "title": "Multi-Agent Research Assistant",
+        "title": "APEC Trade Research Assistant",
         "planning_title": "Planning",
         "review_title": "Review Research Plan",
         "plan_header": "Research Plan",
@@ -92,11 +92,12 @@ TEXTS: dict[str, dict[str, str]] = {
         "session_tasks": "Tasks: {n_plan}  |  Research: {n_ok}/{n_res} OK",
         # ── Idle stage ───────────────────────────────────────────────────────
         "idle_description": (
-            "Enter a research question. The assistant will plan, research using "
-            "web/Wikipedia tools, and write a structured Markdown report."
+            "Enter your trade research needs (target market, industry, trade policies, etc.). "
+            "The assistant will plan research dimensions, gather multi-source intelligence, "
+            "and generate a structured market brief."
         ),
-        "research_question_label": "Research question",
-        "input_placeholder": "Enter your research question...",
+        "research_question_label": "Research query",
+        "input_placeholder": "e.g. I export consumer electronics from Shenzhen, what are the opportunities in Vietnam?",
         "start_btn": "Start Research",
         # ── Planning stage ───────────────────────────────────────────────────
         "query_label": "Query",

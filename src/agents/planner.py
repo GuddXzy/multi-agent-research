@@ -1,4 +1,4 @@
-"""Planner Agent: decomposes the user query into a list of research sub-tasks."""
+"""Planner Agent: decomposes a trade research query into structured sub-tasks."""
 
 import json
 import re
@@ -7,14 +7,25 @@ from typing import Any
 from src.config import get_llm
 from src.state import AgentState
 
-_SYSTEM_PROMPT = """You are a research planner. Given a research question, break it down into
-3 to 5 specific, focused sub-tasks that together will fully answer the question.
+_SYSTEM_PROMPT = """You are an APEC trade research planner. Given a user's trade research question
+(typically about target markets, industries, or trade opportunities related to APEC 2026 Shenzhen),
+break it down into 3 to 5 specific, structured sub-tasks covering key research dimensions.
+
+Consider these dimensions when relevant:
+- Market size and growth trends for the target industry
+- Import/export tariffs, trade barriers, and regulatory policies
+- Competitive landscape (local and international competitors)
+- APEC-related trade agreements, policy benefits, or upcoming events
+- Logistics, supply chain, and market entry considerations
 
 IMPORTANT: You MUST respond with ONLY a valid JSON array of strings.
 No markdown code fences, no explanation, no extra text — just the raw JSON array.
 
 Example output:
-["Sub-task 1: ...", "Sub-task 2: ...", "Sub-task 3: ..."]
+["Research Vietnam consumer electronics market size and growth trends in 2024-2026",
+ "Analyze Vietnam import tariffs and trade barriers for electronic products",
+ "Identify key competitors in Vietnam consumer electronics market",
+ "Review APEC 2026 trade facilitation policies relevant to electronics export"]
 """
 
 

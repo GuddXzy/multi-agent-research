@@ -1,4 +1,4 @@
-"""CLI entry point for the Multi-Agent Research Assistant.
+"""CLI entry point for the APEC Trade Research Assistant.
 
 Usage
 -----
@@ -8,6 +8,7 @@ Usage
 """
 
 import sys
+from datetime import datetime, timezone
 
 from src.config import MEMORY_DB_PATH
 from src.graph import app
@@ -69,8 +70,16 @@ def run(query: str) -> None:
         "language": _detect_language(query),
     }
 
-    print_header("Multi-Agent Research Assistant")
+    print_header("APEC Trade Research Assistant")
     print_info(f"[PLAN] Query: {query}\n")
+
+    # ── [TREND] Check for related past research ───────────────────────────
+    memory = MemoryStore(MEMORY_DB_PATH)
+    past_session = memory.find_related_session(query)
+    if past_session:
+        print_info(f"[TREND] Found related past research from {past_session['created_at'][:10]}")
+        print_info(f"[TREND] Previous query: {past_session['query']}")
+        print_info("[TREND] Will generate trend comparison after new research completes.\n")
 
     final_state = app.invoke(initial_state)
 
@@ -92,14 +101,26 @@ def run(query: str) -> None:
     if final_state.get("error"):
         print(f"\n[ERROR] {final_state['error']}")
 
+    # ── [TREND] Compare with past research ──────────────────────────────
+    new_report = final_state.get("report", "")
+    if past_session and new_report:
+        print_header("[TREND] Trend Comparison")
+        print_info("[TREND] Comparing with previous research...")
+        diff = memory.compare_sessions(
+            old_report=past_session.get("report", ""),
+            new_report=new_report,
+            old_date=past_session["created_at"][:10],
+            new_date=datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+        )
+        print_report(diff)
+
     # ── [MEMORY] Persist session ───────────────────────────────────────────
     print_header("[MEMORY] Saving Session")
-    memory = MemoryStore(MEMORY_DB_PATH)
     memory.save_session(
         query=query,
         plan=final_state.get("plan", []),
         research_results=final_state.get("research_results", []),
-        report=final_state.get("report", ""),
+        report=new_report,
     )
     stats = memory.get_stats()
     print_info(f"[MEMORY] Total sessions stored: {stats['total']}")

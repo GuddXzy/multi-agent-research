@@ -1,26 +1,39 @@
-"""Writer Agent: synthesises all research results into a structured Markdown report."""
+"""Writer Agent: synthesises trade research results into a structured market brief."""
 
 from typing import Any
 
 from src.config import get_llm
 from src.state import AgentState
 
-_SYSTEM_PROMPT = """You are a professional technical writer. Given a research question and a set
-of research findings, produce a well-structured Markdown report with the following sections:
+_SYSTEM_PROMPT = """You are a professional trade analyst. Given a market research question and
+research findings, produce a structured Market Research Brief in Markdown with these sections:
 
-# <Title>
+# 市场调研简报：<Target Market + Industry>
 
-## Abstract
-A short (2-3 sentence) summary of the whole report.
+## 摘要
+2-3 sentences summarizing key findings and actionable insights.
 
-## Research Findings
-One ### subsection per sub-task with its findings.
+## 市场概况
+Market size, growth trends, and key players.
 
-## Conclusion
-Key takeaways and synthesis.
+## 贸易政策与壁垒
+Tariffs, import regulations, trade agreements (especially APEC/FTA related).
 
-Use clear headings, bullet points where appropriate, and maintain an objective, informative tone.
-Note: some sub-tasks may be marked as [FAILED] — skip those in Research Findings."""
+## 竞争格局
+Major competitors, market share, pricing landscape.
+
+## 机遇与风险
+Opportunities (APEC policy benefits, market gaps) and risks (regulatory, competition).
+
+## 行动建议
+3-5 specific, actionable recommendations for the business.
+
+RULES:
+- Write in Chinese (中文).
+- Include specific numbers and data points wherever available.
+- Be practical and business-oriented, not academic.
+- Note data sources when citing statistics.
+- Some sub-tasks may be marked as [FAILED] — skip those."""
 
 
 def _build_limitations(failed_items: list[dict]) -> str:

@@ -1,6 +1,7 @@
 """Long-term memory backed by a local SQLite database.
 
-Stores complete research sessions so the assistant can reference past work.
+Stores complete research sessions and supports trend comparison across
+sessions on the same topic — the core differentiator for ongoing market monitoring.
 Uses only the Python standard library (sqlite3, json, pathlib, datetime).
 """
 
@@ -161,6 +162,82 @@ class MemoryStore:
         except Exception as exc:
             print(f"[Memory] WARNING: search_sessions failed: {exc}")
             return []
+
+    def find_related_session(self, query: str) -> dict[str, Any] | None:
+        """Find the most recent past session whose query is similar to *query*.
+
+        Uses keyword overlap (Jaccard on Chinese/English tokens) to find the
+        best match.  Returns None if no session scores above the threshold.
+        """
+        if not self._ok:
+            return None
+        try:
+            with self._connect() as conn:
+                rows = conn.execute(
+                    "SELECT id, query, plan_json, results_json, report, created_at "
+                    "FROM sessions ORDER BY created_at DESC LIMIT 50"
+                ).fetchall()
+            if not rows:
+                return None
+
+            import re
+            def _tokenize(text: str) -> set[str]:
+                """Extract Chinese bigrams and English words as token set."""
+                # Chinese: use character bigrams for fuzzy matching
+                cn_chars = re.findall(r"[\u4e00-\u9fff]", text)
+                cn = {cn_chars[i] + cn_chars[i+1] for i in range(len(cn_chars)-1)}
+                en = {w.lower() for w in re.findall(r"[a-zA-Z]\w{2,}", text)}
+                return cn | en
+
+            q_tokens = _tokenize(query)
+            if not q_tokens:
+                return None
+
+            best, best_score = None, 0.3  # minimum threshold
+            for row in rows:
+                d = self._row_to_dict(row)
+                r_tokens = _tokenize(d["query"])
+                if not r_tokens:
+                    continue
+                jaccard = len(q_tokens & r_tokens) / len(q_tokens | r_tokens)
+                if jaccard > best_score:
+                    best_score = jaccard
+                    best = d
+            return best
+        except Exception as exc:
+            print(f"[Memory] WARNING: find_related_session failed: {exc}")
+            return None
+
+    def compare_sessions(self, old_report: str, new_report: str,
+                         old_date: str, new_date: str) -> str:
+        """Use LLM to generate a trend comparison between two reports.
+
+        Returns a Markdown diff summary highlighting what changed.
+        """
+        from src.config import get_llm
+
+        llm = get_llm()
+        prompt = f"""你是一名市场分析师。请对比以下两份关于同一话题的调研报告，总结关键变化。
+
+## 旧报告（{old_date}）
+{old_report[:3000]}
+
+## 新报告（{new_date}）
+{new_report[:3000]}
+
+请输出：
+### 📊 趋势对比摘要
+- 列出 3-5 条关键变化（数据变化、政策变化、市场格局变化）
+- 每条用 ↑/↓/→ 标注趋势方向
+- 如果没有显著变化，也要说明"基本稳定"
+
+保持简洁，每条不超过 2 句话。用中文输出。"""
+
+        try:
+            response = llm.invoke([{"role": "user", "content": prompt}])
+            return response.content
+        except Exception as exc:
+            return f"趋势对比生成失败: {exc}"
 
     def get_stats(self) -> dict[str, Any]:
         """Return summary statistics about the stored sessions.
